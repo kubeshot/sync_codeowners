@@ -5,7 +5,7 @@ async function main() {
   try {
     // Retrieve the inputs from environment variables
     const token = core.getInput("repo-token");
-    const onboardedRepo = core.getInput("onboarded-repo"); // New input for onboarded repo
+    const onboardedRepo = core.getInput("onboarded-repo");
     const codeownersPath =
       core.getInput("codeowners-path") || ".github/CODEOWNERS";
     const codeownersContent = core.getInput("codeowners-content");
@@ -17,7 +17,7 @@ async function main() {
     const [owner, repo] = onboardedRepo.split("/");
 
     try {
-      // Attempt to fetch the current CODEOWNERS file from the onboarded repository
+      // Attempt to fetch the current CODEOWNERS file from the repository
       const { data: file } = await octokit.repos.getContent({
         owner,
         repo,
@@ -30,7 +30,6 @@ async function main() {
 
       if (currentContent.trim() === codeownersContent.trim()) {
         console.log("CODEOWNERS file is already up-to-date.");
-        return; // Exit if content is unchanged
       } else {
         // Update the CODEOWNERS file if the content is different
         await octokit.repos.createOrUpdateFileContents({
@@ -58,30 +57,6 @@ async function main() {
         throw error; // Re-throw unexpected errors
       }
     }
-
-    // Create a pull request after updating or creating the CODEOWNERS file
-    const branchName = `update-codeowners-${Date.now()}`; // Create a unique branch name
-
-    await octokit.git.createRef({
-      owner,
-      repo,
-      ref: `refs/heads/${branchName}`,
-      sha: (await octokit.repos.getCommit({ owner, repo, ref: "main" })).data
-        .sha,
-    });
-
-    await octokit.pulls.create({
-      owner,
-      repo,
-      title: "Update CODEOWNERS file",
-      head: branchName,
-      base: "main",
-      body: "This PR updates or creates the CODEOWNERS file.",
-    });
-
-    console.log(
-      `Pull request created in ${onboardedRepo} to update CODEOWNERS file.`,
-    );
   } catch (error) {
     console.error(error);
     core.setFailed(error.message);
