@@ -15,5 +15,3 @@ inputs:
 runs:
   using: "python"
   main: "sync_codeowners.py"
-  pre:
-    - pip install PyGithub
