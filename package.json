@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "main": "sync_codeowners.js",
   "dependencies": {
-    "@octokit/rest": "^18.0.0"  // or the latest version
+    "@octokit/rest": "^18.0.0"
   }
 }
