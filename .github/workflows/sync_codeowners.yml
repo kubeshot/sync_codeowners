@@ -19,4 +19,4 @@ jobs:
           repo-token: ${{ secrets.PAT_TOKEN }}
           onboarded-repo: "kubeshot/run_sync_codeowners" # Change this to the actual repo
           codeowners-content: |
-            *.js       gurneesh-kubeshot  # The content for the CODEOWNERS file
+            *.js       gurneesh-kubeshot
