@@ -13,5 +13,5 @@ inputs:
     required: true
 
 runs:
-  using: "python"
-  main: "sync_codeowners.py"
+  using: "node12" # Use Node.js runtime
+  main: "sync_codeowners.js" # Path to the Node.js script
