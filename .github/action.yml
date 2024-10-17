@@ -1,0 +1,19 @@
+name: "Codeowners Sync Action"
+description: "Sync or update CODEOWNERS file in other repositories."
+inputs:
+  repo-token:
+    description: "GitHub token for accessing repositories"
+    required: true
+  codeowners-path:
+    description: "Path to the CODEOWNERS file in the repository"
+    required: false
+    default: ".github/CODEOWNERS"
+  codeowners-content:
+    description: "Content to place in the CODEOWNERS file"
+    required: true
+
+runs:
+  using: "python"
+  main: "sync_codeowners.py"
+  pre:
+    - pip install PyGithub
