@@ -1,5 +1,5 @@
-const { Octokit } = require("@octokit/rest");
-const core = require("@actions/core");
+import { Octokit } from "@octokit/rest";
+import * as core from "@actions/core"; // ESM
 
 async function main() {
   try {
