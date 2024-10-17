@@ -1,4 +1,4 @@
-import { Octokit } from "@octokit/rest";
+const { Octokit } = require("@octokit/rest");
 
 async function main() {
   const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
@@ -20,13 +20,33 @@ async function main() {
   });
   const latestSHA = latestCommit.commit.sha;
 
-  // Create a new branch from main
-  await octokit.git.createRef({
-    owner,
-    repo,
-    ref: `refs/heads/${branch}`,
-    sha: latestSHA,
-  });
+  // Check if the branch already exists
+  let branchExists = false;
+  try {
+    await octokit.git.getRef({
+      owner,
+      repo,
+      ref: `heads/${branch}`,
+    });
+    branchExists = true;
+    console.log(`Branch ${branch} already exists.`);
+  } catch (error) {
+    if (error.status === 404) {
+      console.log(`Branch ${branch} does not exist, creating a new one.`);
+    } else {
+      throw error;
+    }
+  }
+
+  // Create a new branch from main if it doesn't exist
+  if (!branchExists) {
+    await octokit.git.createRef({
+      owner,
+      repo,
+      ref: `refs/heads/${branch}`,
+      sha: latestSHA,
+    });
+  }
 
   // Get the SHA of the CODEOWNERS file (if it exists)
   let fileSHA = null;
