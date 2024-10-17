@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+
 permissions:
   contents: write
   pull-requests: write
+
 jobs:
   sync-codeowners:
     runs-on: ubuntu-latest
@@ -14,10 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Sync CODEOWNERS file
-        uses: kubeshot/sync_codeowners@main
-        with:
-          repo-token: ${{ secrets.PAT_TOKEN }}
-          onboarded-repo: "kubeshot/run_sync_codeowners" # Change this to the actual repo
-          codeowners-content: |
-            *.js       gurneesh-kubeshot
+      - name: Sync CODEOWNERS file and create PR
+        run: node sync_codeowners.js # Make sure the script creates the PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }} # Use your PAT_TOKEN for auth

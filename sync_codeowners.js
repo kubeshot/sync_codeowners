@@ -1,66 +1,56 @@
-import { Octokit } from "@octokit/rest";
-import * as core from "@actions/core"; // ESM
+const { Octokit } = require("@octokit/rest");
 
 async function main() {
-  try {
-    // Retrieve the inputs from environment variables
-    const token = core.getInput("repo-token");
-    const onboardedRepo = core.getInput("onboarded-repo");
-    const codeownersPath =
-      core.getInput("codeowners-path") || ".github/CODEOWNERS";
-    const codeownersContent = core.getInput("codeowners-content");
+  const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
-    // Authenticate with GitHub using the provided token
-    const octokit = new Octokit({ auth: token });
+  const owner = "kubeshot";
+  const repo = "run_sync_codeowners";
+  const branch = "update-codeowners-branch"; // Name for the new branch
+  const mainBranch = "main"; // Base branch for the PR
+  const filePath = ".github/CODEOWNERS";
+  const newContent = Buffer.from("*.js       gurneesh-kubeshot").toString(
+    "base64",
+  );
 
-    // Split onboardedRepo to get owner and repo
-    const [owner, repo] = onboardedRepo.split("/");
+  // Get the latest commit SHA of the main branch
+  const { data: latestCommit } = await octokit.repos.getBranch({
+    owner,
+    repo,
+    branch: mainBranch,
+  });
+  const latestSHA = latestCommit.commit.sha;
 
-    try {
-      // Attempt to fetch the current CODEOWNERS file from the repository
-      const { data: file } = await octokit.repos.getContent({
-        owner,
-        repo,
-        path: codeownersPath,
-      });
+  // Create a new branch from main
+  await octokit.git.createRef({
+    owner,
+    repo,
+    ref: `refs/heads/${branch}`,
+    sha: latestSHA,
+  });
 
-      const currentContent = Buffer.from(file.content, "base64").toString(
-        "utf-8",
-      );
+  // Update the CODEOWNERS file in the new branch
+  await octokit.repos.createOrUpdateFileContents({
+    owner,
+    repo,
+    path: filePath,
+    message: "Updating CODEOWNERS file",
+    content: newContent,
+    branch, // Use the newly created branch here
+  });
 
-      if (currentContent.trim() === codeownersContent.trim()) {
-        console.log("CODEOWNERS file is already up-to-date.");
-      } else {
-        // Update the CODEOWNERS file if the content is different
-        await octokit.repos.createOrUpdateFileContents({
-          owner,
-          repo,
-          path: codeownersPath,
-          message: "Updating CODEOWNERS file",
-          content: Buffer.from(codeownersContent).toString("base64"),
-          sha: file.sha,
-        });
-        console.log(`Updated CODEOWNERS file at ${codeownersPath}`);
-      }
-    } catch (error) {
-      if (error.status === 404) {
-        // If the CODEOWNERS file doesn't exist, create it
-        await octokit.repos.createOrUpdateFileContents({
-          owner,
-          repo,
-          path: codeownersPath,
-          message: "Creating CODEOWNERS file",
-          content: Buffer.from(codeownersContent).toString("base64"),
-        });
-        console.log(`Created CODEOWNERS file at ${codeownersPath}`);
-      } else {
-        throw error; // Re-throw unexpected errors
-      }
-    }
-  } catch (error) {
-    console.error(error);
-    core.setFailed(error.message);
-  }
+  // Create a pull request from the new branch to main
+  await octokit.pulls.create({
+    owner,
+    repo,
+    title: "Update CODEOWNERS file",
+    head: branch, // Source branch for the PR
+    base: mainBranch, // Target branch for the PR
+    body: "This PR updates the CODEOWNERS file with new owners",
+  });
+
+  console.log("Pull request created successfully");
 }
 
-main();
+main().catch((error) => {
+  console.error("Error occurred:", error);
+});
