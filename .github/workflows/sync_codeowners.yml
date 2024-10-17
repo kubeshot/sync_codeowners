@@ -1,0 +1,21 @@
+name: Sync CODEOWNERS File
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync-codeowners:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Sync CODEOWNERS file
+        uses: kubeshot/sync_codeowners@main
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          onboarded-repo: "kubeshot/run_sync_codeowners" # Change this to the actual repo
+          codeowners-content: |
+            *.js       gurneesh-kubeshot  # The content for the CODEOWNERS file

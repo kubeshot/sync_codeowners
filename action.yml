@@ -4,6 +4,9 @@ inputs:
   repo-token:
     description: "GitHub token for accessing repositories"
     required: true
+  onboarded-repo:
+    description: "The name of the onboarded repository (owner/repo)"
+    required: true
   codeowners-path:
     description: "Path to the CODEOWNERS file in the repository"
     required: false
