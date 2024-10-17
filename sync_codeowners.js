@@ -1,4 +1,5 @@
 import { Octokit } from "@octokit/rest";
+
 async function main() {
   const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
@@ -45,6 +46,20 @@ async function main() {
       ref: `refs/heads/${branch}`,
       sha: latestSHA,
     });
+  }
+
+  // Check if a pull request already exists from the branch to the base branch
+  const { data: pullRequests } = await octokit.pulls.list({
+    owner,
+    repo,
+    state: "open",
+    head: `${owner}:${branch}`,
+    base: mainBranch,
+  });
+
+  if (pullRequests.length > 0) {
+    console.log("Pull request already exists, skipping creation.");
+    return; // Stop execution if a pull request already exists
   }
 
   // Get the SHA of the CODEOWNERS file (if it exists)
