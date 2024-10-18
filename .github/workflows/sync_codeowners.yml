@@ -20,3 +20,4 @@ jobs:
         run: node sync_codeowners.js # Make sure the script creates the PR
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }} # Use your PAT_TOKEN for auth
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }} # Pass PAT_TOKEN for fetching repository topics
