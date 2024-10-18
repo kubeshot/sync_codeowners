@@ -3,8 +3,6 @@ import { Octokit } from "@octokit/rest";
 import fs from "fs";
 import yaml from "js-yaml";
 
-// TODO: Particular topic
-
 // Read the YAML configuration file
 const codeownersConfig = yaml.load(
   fs.readFileSync("codeowners_config.yml", "utf8"),
