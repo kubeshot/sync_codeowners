@@ -1,6 +1,5 @@
 import { Octokit } from "@octokit/rest";
 
-import { Octokit } from "@octokit/rest";
 import fs from "fs";
 import yaml from "js-yaml";
 
