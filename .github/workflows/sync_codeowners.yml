@@ -1,8 +1,9 @@
 name: Sync CODEOWNERS File
 
 on:
-  repository_dispatch:
-    types: [sync_codeowners]
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -15,18 +16,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: "14"
-
-      - name: Install dependencies
-        run: npm install @octokit/rest js-yaml
-
       - name: Sync CODEOWNERS file and create PR
-        run: node sync_codeowners/sync_codeowners.js
+        run: node sync_codeowners.js # Make sure the script creates the PR
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-          TARGET_REPO_OWNER: ${{ github.event.client_payload.owner }}
-          TARGET_REPO_NAME: ${{ github.event.client_payload.repo }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }} # Use your PAT_TOKEN for auth
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }} # Pass PAT_TOKEN for fetching repository topics
