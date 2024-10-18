@@ -16,9 +16,6 @@ async function main() {
   const mainBranch = "main";
   const filePath = ".github/CODEOWNERS";
 
-  // Generate CODEOWNERS content based on YAML config
-  const newContent = generateCodeownersContent(codeownersConfig, owner, repo);
-
   // Get the latest commit SHA of the main branch
   const { data: latestCommit } = await octokit.repos.getBranch({
     owner,
@@ -87,6 +84,16 @@ async function main() {
     }
   }
 
+  // Fetch repository topics dynamically
+  const { data: topicsData } = await octokit.repos.getAllTopics({
+    owner,
+    repo,
+  });
+  const repoTopics = topicsData.names; // Get the topic names
+
+  // Generate CODEOWNERS content based on YAML config
+  const newContent = generateCodeownersContent(codeownersConfig, repoTopics);
+
   // Update or create the CODEOWNERS file in the new branch
   await octokit.repos.createOrUpdateFileContents({
     owner,
@@ -111,7 +118,7 @@ async function main() {
   console.log("Pull request created successfully");
 }
 
-function generateCodeownersContent(config, owner, repo) {
+function generateCodeownersContent(config, repoTopics) {
   let content = "";
 
   // Add global CODEOWNERS
@@ -119,8 +126,7 @@ function generateCodeownersContent(config, owner, repo) {
     content += `${pattern} ${owners}\n`;
   }
 
-  // Check if the repo has topics
-  const repoTopics = ["frontend"]; // Replace with actual topics fetched from GitHub API
+  // Add topic-specific CODEOWNERS based on fetched repo topics
   for (const topic of repoTopics) {
     if (config.topics && config.topics[topic]) {
       for (const [pattern, owners] of Object.entries(config.topics[topic])) {
