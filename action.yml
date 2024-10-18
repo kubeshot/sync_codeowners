@@ -16,5 +16,5 @@ inputs:
     required: true
 
 runs:
-  using: "node12" # Use Node.js runtime
-  main: "sync_codeowners.js" # Path to the Node.js script
+  using: "node12"
+  main: "sync_codeowners.js"
