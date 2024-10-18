@@ -92,7 +92,12 @@ async function main() {
   const repoTopics = topicsData.names; // Get the topic names
 
   // Generate CODEOWNERS content based on YAML config
-  const newContent = generateCodeownersContent(codeownersConfig, repoTopics);
+  const newContent = generateCodeownersContent(
+    codeownersConfig,
+    owner,
+    repo,
+    repoTopics,
+  );
 
   // Update or create the CODEOWNERS file in the new branch
   await octokit.repos.createOrUpdateFileContents({
@@ -118,7 +123,7 @@ async function main() {
   console.log("Pull request created successfully");
 }
 
-function generateCodeownersContent(config, repoTopics) {
+function generateCodeownersContent(config, owner, repo, repoTopics) {
   let content = "";
 
   // Add global CODEOWNERS
