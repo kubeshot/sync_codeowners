@@ -1,20 +1,21 @@
 # Define global CODEOWNERS
 global:
-  '*.js': js-team@example.com
-  '*.py': python-team@example.com
+  "*.js": js-team@example.com
+  "*.py": python-team@example.com
 
 # Define CODEOWNERS by repository topic
 topics:
   frontend:
-    '*.css': frontend-team@example.com
-    '*.html': frontend-team@example.com
+    "*.css": frontend-team@example.com
+    "*.html": frontend-team@example.com
+    "*.abc": abc-team.example.com
   backend:
-    '*.go': backend-team@example.com
-    '*.java': backend-team@example.com
+    "*.go": backend-team@example.com
+    "*.java": backend-team@example.com
 
 # Define CODEOWNERS for specific repositories
 repositories:
-  'org/repo1':
-    '/docs/': documentation-team@example.com
-  'org/repo2':
-    '/src/': core-team@example.com
+  "org/repo1":
+    "/docs/": documentation-team@example.com
+  "org/repo2":
+    "/src/": core-team@example.com
