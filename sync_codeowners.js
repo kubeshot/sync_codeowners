@@ -11,33 +11,31 @@ const codeownersConfig = yaml.load(
 );
 
 async function main() {
-  const octokit = new Octokit({ auth: process.env.PAT_TOKEN });
+  const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
-  const owner = process.env.GITHUB_REPOSITORY_OWNER || "kubeshot";
-  const repo =
-    process.env.GITHUB_REPOSITORY?.split("/")[1] || "run_sync_codeowners";
+  const owner = "kubeshot";
+  const repo = "run_sync_codeowners";
   const branch = "update-codeowners-branch";
   const mainBranch = "main";
   const filePath = ".github/CODEOWNERS";
 
-  // Fetch repository topics
-  const { data: repoData } = await octokit.repos.get({ owner, repo });
-  const repoTopics = repoData.topics || [];
-
-  // Generate CODEOWNERS content based on YAML config and repo topics
-  const newContent = await generateCodeownersContent(
-    codeownersConfig,
-    owner,
-    repo,
-    repoTopics,
-  );
+  // Generate CODEOWNERS content based on YAML config
+  const newContent = generateCodeownersContent(codeownersConfig, owner, repo);
 
   // Get the latest commit SHA of the main branch
 
-  async function generateCodeownersContent(config, owner, repo, repoTopics) {
+  function generateCodeownersContent(config, owner, repo) {
     let content = "";
 
+    // Add global CODEOWNERS
+    for (const [pattern, owners] of Object.entries(config.global || {})) {
+      content += `${pattern} ${owners}\n`;
+    }
+
     // Add topic-specific CODEOWNERS
+    // Note: You'll need to fetch repository topics from GitHub API
+    // and match them with the config. This is just a placeholder.
+    const repoTopics = ["frontend", "backend"]; // Replace with actual topics
     for (const topic of repoTopics) {
       if (config.topics && config.topics[topic]) {
         for (const [pattern, owners] of Object.entries(config.topics[topic])) {
@@ -52,13 +50,6 @@ async function main() {
       for (const [pattern, owners] of Object.entries(
         config.repositories[repoKey],
       )) {
-        content += `${pattern} ${owners}\n`;
-      }
-    }
-
-    // Add global CODEOWNERS if no topic-specific or repo-specific rules were added
-    if (content === "") {
-      for (const [pattern, owners] of Object.entries(config.global || {})) {
         content += `${pattern} ${owners}\n`;
       }
     }
