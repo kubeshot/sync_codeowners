@@ -18,6 +18,8 @@ async function main() {
   const mainBranch = "main";
   const filePath = ".github/CODEOWNERS";
 
+  console.log(`Updating CODEOWNERS for repository: ${owner}/${repo}`);
+
   // Fetch repository topics
   const { data: repoData } = await octokit.repos.get({ owner, repo });
   const repoTopics = repoData.topics || [];
