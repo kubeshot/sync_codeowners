@@ -1,5 +1,4 @@
 import { Octokit } from "@octokit/rest";
-
 import fs from "fs";
 import yaml from "js-yaml";
 
@@ -21,39 +20,6 @@ async function main() {
   const newContent = generateCodeownersContent(codeownersConfig, owner, repo);
 
   // Get the latest commit SHA of the main branch
-
-  function generateCodeownersContent(config, owner, repo) {
-    let content = "";
-
-    // Add global CODEOWNERS
-    for (const [pattern, owners] of Object.entries(config.global || {})) {
-      content += `${pattern} ${owners}\n`;
-    }
-
-    // Add topic-specific CODEOWNERS
-    // Note: You'll need to fetch repository topics from GitHub API
-    // and match them with the config. This is just a placeholder.
-    const repoTopics = ["frontend", "backend"]; // Replace with actual topics
-    for (const topic of repoTopics) {
-      if (config.topics && config.topics[topic]) {
-        for (const [pattern, owners] of Object.entries(config.topics[topic])) {
-          content += `${pattern} ${owners}\n`;
-        }
-      }
-    }
-
-    // Add repository-specific CODEOWNERS
-    const repoKey = `${owner}/${repo}`;
-    if (config.repositories && config.repositories[repoKey]) {
-      for (const [pattern, owners] of Object.entries(
-        config.repositories[repoKey],
-      )) {
-        content += `${pattern} ${owners}\n`;
-      }
-    }
-
-    return Buffer.from(content).toString("base64");
-  }
   const { data: latestCommit } = await octokit.repos.getBranch({
     owner,
     repo,
@@ -143,6 +109,37 @@ async function main() {
   });
 
   console.log("Pull request created successfully");
+}
+
+function generateCodeownersContent(config, owner, repo) {
+  let content = "";
+
+  // Add global CODEOWNERS
+  for (const [pattern, owners] of Object.entries(config.global || {})) {
+    content += `${pattern} ${owners}\n`;
+  }
+
+  // Check if the repo has topics
+  const repoTopics = ["frontend"]; // Replace with actual topics fetched from GitHub API
+  for (const topic of repoTopics) {
+    if (config.topics && config.topics[topic]) {
+      for (const [pattern, owners] of Object.entries(config.topics[topic])) {
+        content += `${pattern} ${owners}\n`;
+      }
+    }
+  }
+
+  // Add repository-specific CODEOWNERS
+  const repoKey = `${owner}/${repo}`;
+  if (config.repositories && config.repositories[repoKey]) {
+    for (const [pattern, owners] of Object.entries(
+      config.repositories[repoKey],
+    )) {
+      content += `${pattern} ${owners}\n`;
+    }
+  }
+
+  return Buffer.from(content).toString("base64");
 }
 
 main().catch((error) => {
